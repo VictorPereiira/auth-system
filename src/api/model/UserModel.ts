@@ -37,39 +37,33 @@ class AuthMongoModel {
         }
     }
 
-    // async login(data: any) {
-    // const { email, password } = data;
-    // try {
-    //     return await mongoModel.findOne({ email }, (error: any, user: any) => {
-    //         if (!user) {
-    //             return {
-    //                 statusCode: 401,
-    //                 message: "Email incorrect",
-    //             }
-    //         };
-    //         const checkPassword = bcrypt.compareSync(password, user.password);
-    //         if (!checkPassword) {
-    //             return {
-    //                 statusCode: 401,
-    //                 message: "Password incorrect",
-    //             }
-    //         };
-    //         const token = jwt.sign({ name: user.name }, SECRET);
-    //         return {
-    //             statusCode: 200,
-    //             message: "Login success",
-    //             data: {
-    //                 token
-    //             }
-    //         }
-    //     })
-    // } catch (error: any) {
-    //     console.error(error);
-    //     return {
-    //         message: error.message,
-    //     };
-    // }
-    // }
+    async signin(data: any) {
+        const { email, password } = data;
+        try {
+            const user: any = await mongoModel.findOne({ email })
+            if (!user) {
+                return {
+                    statusCode: 401,
+                    error: "Email incorrect",
+                }
+            }
+            const checkPassword = bcrypt.compareSync(password, user.password);
+            if (!checkPassword) {
+                return {
+                    statusCode: 401,
+                    error: "Password incorrect",
+                }
+            };
+            const token = jwt.sign({ name: user.name }, SECRET);
+            return { token }
+        } catch (error: any) {
+            console.error(error);
+            return {
+                statusCode: 500,
+                error: error.message,
+            };
+        }
+    }
 }
 
 export default new AuthMongoModel();
